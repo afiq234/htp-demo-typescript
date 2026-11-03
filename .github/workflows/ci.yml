@@ -23,24 +23,26 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node.js
-        id: setup-node
         uses: actions/setup-node@v4
         with:
-          node-version: '26'
+          node-version: '26.13.0'
           cache: npm
+
+      - name: Set npm version
+        run: npm install --global npm@11.10.1
 
       - name: Show npm install context
         run: |
           echo "Event: $GITHUB_EVENT_NAME"
           echo "Ref: $GITHUB_REF"
-          git log -1 --oneline
           git rev-parse HEAD
-          pwd
           node --version
           npm --version
           npm config get legacy-peer-deps
           npm config get install-links
 
+      - name: Install Dependencies
+        run: npm ci
       - name: Install Dependencies
         id: npm-ci
         run: npm ci
