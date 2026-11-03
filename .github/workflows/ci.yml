@@ -33,6 +33,16 @@ jobs:
         id: npm-ci
         run: npm ci
 
+      - name: Show npm install context
+        run: |
+          git rev-parse HEAD
+          git log -1 --oneline
+          pwd
+          node --version
+          npm --version
+          npm config get legacy-peer-deps
+          npm config get install-links
+
       - name: Bundle and Format TypeScript into JavaScript
         id: npm-bundle
         run: npm run bundle
