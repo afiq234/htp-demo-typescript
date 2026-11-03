@@ -29,19 +29,21 @@ jobs:
           node-version: '24'
           cache: npm
 
-      - name: Install Dependencies
-        id: npm-ci
-        run: npm ci
-
       - name: Show npm install context
         run: |
-          git rev-parse HEAD
+          echo "Event: $GITHUB_EVENT_NAME"
+          echo "Ref: $GITHUB_REF"
           git log -1 --oneline
+          git rev-parse HEAD
           pwd
           node --version
           npm --version
           npm config get legacy-peer-deps
           npm config get install-links
+
+      - name: Install Dependencies
+        id: npm-ci
+        run: npm ci
 
       - name: Bundle and Format TypeScript into JavaScript
         id: npm-bundle
