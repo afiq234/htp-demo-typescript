@@ -40,18 +40,10 @@ jobs:
         id: install
         run: npm ci
 
-      - name: Auto-Format Code Styles to Match Compiler Baseline
-        id: auto-format
-        run:
-          npm run format:write || echo "Forcing Prettier configuration
-          compliance..."
-
       - name: Re-build dist/ Directory Fresh
         id: build
-        run: npm run bundle
+        run: npm run package
 
-      # Compares directories strictly based on code logic.
-      # Passing the -w flag ignores all whitespaces, line breaks, and formatting mismatches.
       - name: Compare Directories
         id: diff
         run: |
@@ -60,12 +52,7 @@ jobs:
             exit 1
           fi
 
-          # Added -w flag to look past formatting layout differences
-          if [ "$(git diff -w --ignore-space-at-eol --text dist/ | wc -l)" -gt "0" ]; then
-            echo "Detected uncommitted core logic changes after build. See diff below:"
-            git diff -w --ignore-space-at-eol --text dist/
-            exit 1
-          fi
+          git diff --exit-code --text -- dist/
 
       # If `dist/` was different than expected, upload the expected version as a workflow artifact.
       - if: ${{ failure() && steps.diff.outcome == 'failure' }}

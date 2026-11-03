@@ -28297,6 +28297,8 @@ async function run() {
         debug(new Date().toTimeString());
         await wait(parseInt(ms, 10));
         debug(new Date().toTimeString());
+        // Set outputs for other workflow steps to use
+        setOutput('time', new Date().toTimeString());
         summary
             .addHeading('Advanced Job Summary', 'h2')
             .addImage('https://octodex.github.com/images/droidtocat.png', 'Droidtocat', {
@@ -28314,8 +28316,6 @@ async function run() {
         ])
             .addLink('My custom link', 'https://writeabout.net')
             .write();
-        // Set outputs for other workflow steps to use
-        setOutput('time', new Date().toTimeString());
     }
     catch (error) {
         // Fail the workflow run if an error occurs
