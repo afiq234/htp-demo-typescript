@@ -7,86 +7,51 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  build-and-test:
-    name: Build, Lint, and Test
+  test-typescript:
+    name: TypeScript Tests
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         id: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        id: setup-node
+        uses: actions/setup-node@v6
         with:
-          node-version: '26.13.0'
+          node-version-file: .node-version
           cache: npm
 
-      - name: Set npm version
-        run: npm install --global npm@11.10.1
-
-      - name: Show npm install context
-        run: |
-          echo "Event: $GITHUB_EVENT_NAME"
-          echo "Ref: $GITHUB_REF"
-          git rev-parse HEAD
-          node --version
-          npm --version
-          npm config get legacy-peer-deps
-          npm config get install-links
-
-      - name: Install Dependencies
-        run: npm ci
       - name: Install Dependencies
         id: npm-ci
         run: npm ci
 
-      - name: Bundle and Format TypeScript into JavaScript
-        id: npm-bundle
-        run: npm run bundle
-
-      # - name: Automatically Commit and Push Bundle & Format Fixes
-      #   uses: stefanzweifel/git-auto-commit-action@v5
-      #   with:
-      #     commit_message: "chore: automated bundle and format fixes [skip ci]"
-      #     file_pattern: 'dist/* src/* action.yml'
-
-      - name: Automatically Commit and Push Bundle & Format Fixes
-        id: git-push-bundle
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Stage the specific targeted directories
-          git add dist/ src/main.ts action.yml
-
-          # Safely evaluate differences without letting bash crash on exit code 1
-          if git diff --cached --quiet; then
-            echo "No compiler or formatting bundle changes detected. Skipping push."
-          else
-            echo "Bundle changes detected! Committing changes..."
-            git commit -m "chore: automated bundle and format fixes [skip ci]"
-            git push
-          fi
-        shell: bash
-
-      - name: Check Formatting Standards
+      - name: Check Format
         id: npm-format-check
         run: npm run format:check
 
-      - name: Run Code Linter
+      - name: Lint
         id: npm-lint
         run: npm run lint
 
-      - name: Execute Jest Unit Tests
+      - name: Test
         id: npm-ci-test
         run: npm run ci-test
+
+  test-action:
+    name: GitHub Actions Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v6
 
       - name: Test Local Action
         id: test-action
