@@ -1,64 +1,19 @@
-name: Continuous Integration
-
-on:
-  pull_request:
-    branches:
-      - main
-  push:
-    branches:
-      - main
-
-permissions:
-  contents: read
-
+name: Action CI
+on: [push]
 jobs:
-  test-typescript:
-    name: TypeScript Tests
+  ci:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        id: checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        id: setup-node
-        uses: actions/setup-node@v6
-        with:
-          node-version-file: .node-version
-          cache: npm
-
-      - name: Install Dependencies
-        id: npm-ci
-        run: npm ci
-
-      - name: Check Format
-        id: npm-format-check
-        run: npm run format:check
-
-      - name: Lint
-        id: npm-lint
-        run: npm run lint
-
-      - name: Test
-        id: npm-ci-test
-        run: npm run ci-test
-
-  test-action:
-    name: GitHub Actions Test
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        id: checkout
-        uses: actions/checkout@v6
-
-      - name: Test Local Action
-        id: test-action
-        uses: ./
-        with:
-          milliseconds: 2000
-
-      - name: Print Output
-        id: output
-        run: echo "${{ steps.test-action.outputs.time }}"
+     - uses: actions/checkout@v4.1.1
+     - name: Run my own container action
+       id: my-action
+       uses: ./
+       with:
+         who-to-greet: 'Raj'
+     - name: Output the answer
+       run: echo "The answer is ${{ steps.my-action.outputs.answer }}"
+     - name: Test the container
+       if: ${{ steps.my-action.outputs.answer != 42 }}
+       run: |
+         echo "::error file=entrypoint.sh,line=4,title=Error in container::The answer was not expected"
+         exit 1
